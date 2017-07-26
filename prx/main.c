@@ -58,7 +58,7 @@
 // Global variables
 uint8_t payload[4];
 bool received = false;
-uint32_t counter = 0;
+//uint32_t counter = 0;
 
 #ifdef __ICC8051__
 int putchar(int c)
@@ -87,10 +87,36 @@ void putstring(char *s)
     putchar(*s++);
 }
 
+
+#define  LED_BLUE   0x04
+#define  LED_GREEN  0x08
+#define  LED_RED    0x10
+
+/*
+static
+void dimmer(
+	uint16_t ratio,
+	uint16_t duration // µs
+  )
+{
+	uint16_t i;
+	
+	for(i = 0; i < 5; i++) 
+	{
+		P1 = LED_BLUE; 
+		delay_us(duration * ratio / 100);
+		P1 = 0;
+		delay_us(duration * (100 - ratio) / 100);
+	}
+}
+*/
+
+
+
 void main()
 {
 	char msg[32];
-	
+	int i, j;
 	hal_uart_init(UART_BAUD_9K6);
 	
 #ifdef MCU_NRF24LE1
@@ -107,6 +133,7 @@ void main()
 
   // Set P0 as output
   P0DIR = 0;
+	P1DIR = 0;
 
   // Enable the radio clock
   RFCKEN = 1;
@@ -125,17 +152,52 @@ void main()
   // Power up radio
   hal_nrf_set_power_mode(HAL_NRF_PWR_UP);
 
-  // Enable receiver
-  CE_HIGH();
+	P1 = 0;
 
-  for(;;){
-		if(received) {
-			received = false;
-			sprintf(msg, "%lu\r\n", counter);
-			putstring(msg);
-			//delay_ms(10);
+	// Setup Timer0 mode2 (8-bit auto-reload timer)
+	TMOD = 0x02;
+	
+	// Set Timer0 on
+	TR0 = 1;
+	
+	//i = 10000;
+	/*for(;;) 
+	{
+		for(i = 1; i < 100; i++) {
+			dimmer(i, 1000);
+			P1 = 0;
+			delay_ms(10);
 		}
+		
+
+		
+	}*/
+
+  // Enable receiver
+//  CE_HIGH();
+
+//  for(;;){
+//		if(received) {
+//			received = false;
+//			sprintf(msg, "%lu\r\n", counter);
+//			putstring(msg);
+//			//delay_ms(10);
+//		}
+//	}
+}
+
+
+uint8_t counter = 0;
+
+T0_ISR()
+{
+	if(counter == 0) {
+		P1 = LED_BLUE; 
 	}
+	else if(counter == 150) {
+		P1 = 0;	
+	}
+	counter++;
 }
 
 // Radio interrupt
