@@ -58,7 +58,7 @@
 // Global variables
 uint8_t payload[4];
 bool received = false;
-//uint32_t counter = 0;
+uint32_t counter = 0;
 
 #ifdef __ICC8051__
 int putchar(int c)
@@ -111,12 +111,14 @@ void dimmer(
 }
 */
 
+static 
+uint8_t counter_t0 = 0;
 
 
 void main()
 {
   char msg[32];
-  int i, j;
+  //int i, j;
   hal_uart_init(UART_BAUD_9K6);
   
 #ifdef MCU_NRF24LE1
@@ -155,21 +157,27 @@ void main()
   P1 = 0;
 
   // Setup Timer0 mode2 (8-bit auto-reload timer)
-  TMOD = 0x01;
+  TMOD = 0x02;
   
+  TH0 = 0;
+  TL0 = 0;
+
   // Set Timer0 on
   TR0 = 1;
+ 
+  // Set Timer0 interrupt on
+  ET0 = 1;
   
-  //i = 10000;
-  /*for(;;) 
+  counter_t0 = 0;
+  
+  for(;;) 
   {
-    for(i = 1; i < 100; i++) {
-      dimmer(i, 1000);
-      P1 = 0;
-      delay_ms(10);
-    }
-  }*/
-
+    sprintf(msg, "count %u\r\n", counter_t0);
+    putstring(msg);
+    
+    delay_ms(10);
+  }
+  
   // Enable receiver
 //  CE_HIGH();
 
@@ -184,17 +192,18 @@ void main()
 }
 
 
-uint8_t counter = 0;
+
+
 
 T0_ISR()
 {
-  if(counter == 0) {
+  if(counter_t0 == 0) {
     P1 = LED_BLUE; 
   }
-  else if(counter == 150) {
+  else if(counter_t0 == 150) {
     //P1 = 0;  
   }
-  counter++;
+  counter_t0++;
 }
 
 // Radio interrupt
