@@ -55,10 +55,21 @@
 #include "hal_nrf.h"
 #include "hal_delay.h"
 
+typedef enum {
+  eOn,
+  eBlink,
+  eColorChange
+} eMode;
+
+
 // Global variables
 uint8_t payload[4];
 bool received = false;
 uint32_t counter = 0;
+uint8_t on_period = 0;
+eMode mode = eBlink;
+uint8_t color;
+
 
 #ifdef __ICC8051__
 int putchar(int c)
@@ -170,12 +181,41 @@ void main()
   
   counter_t0 = 0;
   
+  
   for(;;) 
   {
     //sprintf(msg, "count %u\r\n", counter_t0);
     //putstring(msg);
-    
-    delay_ms(10);
+    switch(mode) {
+      default:
+      case eOn:
+      {
+        color = LED_BLUE;
+        TH0 = 150;
+        TL0 = 150;
+        on_period = 150;
+        delay_ms(100);
+      }
+      break;
+      
+      case eBlink:
+      {
+        color = LED_BLUE | LED_RED | LED_GREEN;
+        on_period = 0xff;
+        TR0 = 0; // timer off
+        P1 = 0;  // light off
+        delay_ms(1000);
+        TR0 = 1; // timer on
+        delay_ms(50);
+      }
+      break;
+      
+      case eColorChange:
+      {
+        on_period = 0xff;
+      }
+      break;
+    }
   }
   
   // Enable receiver
@@ -198,9 +238,9 @@ void main()
 T0_ISR()
 {
   if(counter_t0 == 0) {
-    P1 = LED_BLUE; 
+    P1 = color; 
   }
-  else if(counter_t0 == 20) {
+  else if(counter_t0 == on_period) {
     P1 = 0;  
   }
   counter_t0++;
