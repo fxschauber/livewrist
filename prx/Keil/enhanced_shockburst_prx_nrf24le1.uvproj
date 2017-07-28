@@ -12,14 +12,14 @@
       <ToolsetName>MCS-51</ToolsetName>
       <TargetOption>
         <TargetCommonOption>
-          <Device>nRFLU1P-F32</Device>
+          <Device>nRF24LE1</Device>
           <Vendor>Nordic Semiconductor</Vendor>
-          <Cpu>IRAM(0-0xFF) IROM(0-0x7FFF) XRAM (0x8000-0x87FF) CLOCK(16000000) MODC2</Cpu>
-          <FlashUtilSpec>"nrfprog" (-2 %H -x $X)</FlashUtilSpec>
+          <Cpu>IRAM(0-0xFF) IROM(0-0x3FFF) XRAM(0x0000-0x03FF) XRAM2(0xFA00-0xFFFF) CLOCK(24000000) MODC2 MDU_R515</Cpu>
+          <FlashUtilSpec></FlashUtilSpec>
           <StartupFile>"LIB\STARTUP.A51" ("Standard 8051 Startup Code")</StartupFile>
           <FlashDriverDll></FlashDriverDll>
-          <DeviceId>4946</DeviceId>
-          <RegisterFile>reg24lu1.H</RegisterFile>
+          <DeviceId>4727</DeviceId>
+          <RegisterFile>reg24le1.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -30,6 +30,7 @@
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
           <SFDFile></SFDFile>
+          <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -61,6 +62,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopU1X>0</nStopU1X>
+            <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
             <RunUserProg1>0</RunUserProg1>
@@ -69,6 +72,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopB1X>0</nStopB1X>
+            <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
@@ -77,6 +82,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -95,17 +102,18 @@
           <StopOnExitCode>3</StopOnExitCode>
           <CustomArgument></CustomArgument>
           <IncludeLibraryModules></IncludeLibraryModules>
+          <ComprImg>1</ComprImg>
           <BankNo>65535</BankNo>
         </CommonProperty>
         <DllOption>
           <SimDllName>S8051.DLL</SimDllName>
           <SimDllArguments></SimDllArguments>
           <SimDlgDll>DP51.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pRF24LU1</SimDlgDllArguments>
+          <SimDlgDllArguments>-pRF24LE1</SimDlgDllArguments>
           <TargetDllName>S8051.DLL</TargetDllName>
           <TargetDllArguments></TargetDllArguments>
           <TargetDlgDll>TP51.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pRF24LU1</TargetDlgDllArguments>
+          <TargetDlgDllArguments>-pRF24LE1</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -125,6 +133,7 @@
             <RestoreFunctions>1</RestoreFunctions>
             <RestoreToolbox>1</RestoreToolbox>
             <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
+            <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
             <UseTarget>1</UseTarget>
@@ -135,9 +144,11 @@
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
             <RestoreFunctions>0</RestoreFunctions>
             <RestoreToolbox>1</RestoreToolbox>
+            <RestoreTracepoints>0</RestoreTracepoints>
+            <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>9</TargetSelection>
+          <TargetSelection>-1</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -151,7 +162,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\nrfkeil515.dll</Driver>
+            <Driver></Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -163,21 +174,26 @@
             <Capability>1</Capability>
             <DriverSelection>4101</DriverSelection>
           </Flash1>
+          <bUseTDR>0</bUseTDR>
           <Flash2>BIN\nrfkeil515.dll</Flash2>
-          <Flash3>"nrfprog" (-2 %H -x $X)</Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
+          <pFcarmOut></pFcarmOut>
+          <pFcarmGrp></pFcarmGrp>
+          <pFcArmRoot></pFcArmRoot>
+          <FcArmLst>0</FcArmLst>
         </Utilities>
         <Target51>
           <Target51Misc>
-            <MemoryModel>0</MemoryModel>
+            <MemoryModel>2</MemoryModel>
             <RTOS>0</RTOS>
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
             <XDataHold>0</XDataHold>
-            <UseOnchipRom>0</UseOnchipRom>
+            <UseOnchipRom>1</UseOnchipRom>
             <UseOnchipArithmetic>0</UseOnchipArithmetic>
-            <UseMultipleDPTR>0</UseMultipleDPTR>
-            <UseOnchipXram>0</UseOnchipXram>
+            <UseMultipleDPTR>1</UseMultipleDPTR>
+            <UseOnchipXram>1</UseOnchipXram>
             <HadIRAM>1</HadIRAM>
             <HadXRAM>1</HadXRAM>
             <HadIROM>1</HadIROM>
@@ -199,11 +215,11 @@
             <ModDA>0</ModDA>
             <ModAB2>0</ModAB2>
             <Mx51P>0</Mx51P>
-            <hadXRAM2>0</hadXRAM2>
+            <hadXRAM2>1</hadXRAM2>
             <uocXram2>1</uocXram2>
             <ModC2>1</ModC2>
             <ModH2>0</ModH2>
-            <Mdu_R515>0</Mdu_R515>
+            <Mdu_R515>1</Mdu_R515>
             <Mdu_F120>0</Mdu_F120>
             <Psoc>0</Psoc>
             <hadIROM2>0</hadIROM2>
@@ -254,7 +270,7 @@
               <IRO>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <Size>0x4000</Size>
               </IRO>
               <IRA>
                 <Type>0</Type>
@@ -263,13 +279,13 @@
               </IRA>
               <XRA>
                 <Type>0</Type>
-                <StartAddress>0x8000</StartAddress>
-                <Size>0x800</Size>
+                <StartAddress>0x0</StartAddress>
+                <Size>0x400</Size>
               </XRA>
               <XRA512>
                 <Type>0</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x0</Size>
+                <StartAddress>0xfa00</StartAddress>
+                <Size>0x600</Size>
               </XRA512>
               <IROM512>
                 <Type>0</Type>
@@ -295,7 +311,7 @@
               <MiscControls></MiscControls>
               <Define>MCU_NRF24LE1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\..\..\hal\nrf24le1;..\..\..\..\..\..\hal\nrf24l01p;..\..\..\..\..\..\hal;..\..\..\..\..\..\compiler\common;..\..\..\..\..\..\compiler\c51</IncludePath>
+              <IncludePath>..\..\hal\nrf24le1;..\..\hal\nrf24l01p;..\..\hal;..\..\compiler\c51;..\..\compiler\common</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -350,7 +366,7 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\main.c</FilePath>
+              <FilePath>C:\dev\livewrist\prx\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -360,17 +376,27 @@
             <File>
               <FileName>hal_nrf_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\hal\nrf24le1\hal_nrf_hw.c</FilePath>
+              <FilePath>C:\dev\livewrist\hal\nrf24le1\hal_nrf_hw.c</FilePath>
             </File>
             <File>
               <FileName>hal_nrf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\hal\nrf24l01p\hal_nrf.c</FilePath>
+              <FilePath>C:\dev\livewrist\hal\nrf24l01p\hal_nrf.c</FilePath>
             </File>
             <File>
               <FileName>hal_clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\hal\nrf24le1\hal_clk.c</FilePath>
+              <FilePath>C:\dev\livewrist\hal\nrf24le1\hal_clk.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\nrf24le1\hal_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\hal_delay.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -159,8 +159,8 @@ void main()
   // Setup Timer0 mode2 (8-bit auto-reload timer)
   TMOD = 0x02;
   
-  TH0 = 0;
-  TL0 = 0;
+  TH0 = 150;
+  TL0 = 150;
 
   // Set Timer0 on
   TR0 = 1;
@@ -172,8 +172,8 @@ void main()
   
   for(;;) 
   {
-    sprintf(msg, "count %u\r\n", counter_t0);
-    putstring(msg);
+    //sprintf(msg, "count %u\r\n", counter_t0);
+    //putstring(msg);
     
     delay_ms(10);
   }
@@ -200,8 +200,8 @@ T0_ISR()
   if(counter_t0 == 0) {
     P1 = LED_BLUE; 
   }
-  else if(counter_t0 == 150) {
-    //P1 = 0;  
+  else if(counter_t0 == 20) {
+    P1 = 0;  
   }
   counter_t0++;
 }
