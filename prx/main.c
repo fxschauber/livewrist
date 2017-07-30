@@ -65,10 +65,18 @@ typedef enum {
 // Global variables
 uint8_t payload[4];
 bool received = false;
-uint32_t counter = 0;
-uint8_t on_period = 0;
+uint8_t counter = 0;
+
 eMode mode = eBlink;
 uint8_t color;
+
+uint8_t period_red = 0;
+uint8_t period_green = 0;
+uint8_t period_blue = 0;
+
+uint8_t counter_red = 0;
+uint8_t counter_green = 0;
+uint8_t counter_blue = 0;
 
 
 #ifdef __ICC8051__
@@ -122,12 +130,12 @@ void dimmer(
 }
 */
 
-static 
-uint8_t counter_t0 = 0;
+
 
 
 void main()
 {
+  int8_t inc = 1;
   char msg[32];
   //int i, j;
   hal_uart_init(UART_BAUD_9K6);
@@ -179,8 +187,8 @@ void main()
   // Set Timer0 interrupt on
   ET0 = 1;
   
-  counter_t0 = 0;
-  
+  counter_red = counter_green = counter_blue = 0;
+  period_red = period_green = period_blue = 0;
   
   for(;;) 
   {
@@ -190,10 +198,12 @@ void main()
       default:
       case eOn:
       {
-        color = LED_BLUE;
+        color = LED_BLUE | LED_RED | LED_GREEN;
         TH0 = 150;
         TL0 = 150;
-        on_period = 150;
+        period_red = 50;
+        period_green = 50;
+        period_blue = 20;
         delay_ms(100);
       }
       break;
@@ -201,7 +211,7 @@ void main()
       case eBlink:
       {
         color = LED_BLUE | LED_RED | LED_GREEN;
-        on_period = 0xff;
+        period_red = period_green = period_blue = 0xff;
         TR0 = 0; // timer off
         P1 = 0;  // light off
         delay_ms(1000);
@@ -212,7 +222,21 @@ void main()
       
       case eColorChange:
       {
-        on_period = 0xff;
+        color = LED_BLUE | LED_RED | LED_GREEN;
+        
+        if(period_red == 0) inc = 1;
+        else if(period_red == 0xff) inc = -1;      
+        period_red   += inc; 
+        
+        if(period_green == 0) inc = 1;
+        else if(period_green == 0xff) inc = -1;
+        period_green +=  inc;
+        
+        if(period_blue == 0) inc = 1;
+        else if(period_blue == 0xff) inc = -1;
+        period_blue  += inc;
+        
+        delay_ms(10);
       }
       break;
     }
@@ -237,13 +261,19 @@ void main()
 
 T0_ISR()
 {
-  if(counter_t0 == 0) {
+  if(counter == 0) {
     P1 = color; 
+  }  
+  if(counter == period_red) {
+    P1 &= ~LED_RED;  
   }
-  else if(counter_t0 == on_period) {
-    P1 = 0;  
+  if(counter == period_green) {
+    P1 &= ~LED_GREEN;  
   }
-  counter_t0++;
+  if(counter == period_blue) {
+    P1 &= ~LED_BLUE;  
+  }
+  counter++;
 }
 
 // Radio interrupt
