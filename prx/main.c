@@ -55,20 +55,27 @@
 #include "hal_nrf.h"
 #include "hal_delay.h"
 
+// [mode][color][dim_red][dim_green][dim_blue]
+
 typedef enum {
-  eOn,
+  eNone,
+  eColor,
   eBlink,
   eColorChange
 } eMode;
 
 
 // Global variables
-uint8_t payload[4];
+uint8_t payload[5];
 bool received = false;
 uint8_t counter = 0;
 
-eMode mode = eBlink;
-uint8_t color;
+eMode mode = eNone;
+uint8_t color = 0;
+uint8_t dim_red = 0;
+uint8_t dim_green = 0;
+uint8_t dim_blue = 0;
+
 
 uint8_t period_red = 0;
 uint8_t period_green = 0;
@@ -110,6 +117,7 @@ void putstring(char *s)
 #define  LED_BLUE   0x04
 #define  LED_GREEN  0x08
 #define  LED_RED    0x10
+
 
 /*
 static
@@ -167,8 +175,8 @@ void main()
   // Configure radio as primary receiver (PTX)
   hal_nrf_set_operation_mode(HAL_NRF_PRX);
 
-  // Set payload width to 4 bytes
-  hal_nrf_set_rx_payload_width((int)HAL_NRF_PIPE0, 4);
+  // Set payload width to 5 bytes
+  hal_nrf_set_rx_payload_width((int)HAL_NRF_PIPE0, 5);
 
   // Power up radio
   hal_nrf_set_power_mode(HAL_NRF_PWR_UP);
@@ -176,53 +184,70 @@ void main()
   P1 = 0;
 
   // Setup Timer0 mode2 (8-bit auto-reload timer)
-  TMOD = 0x02;
+  TMOD = 0x22;
   
   TH0 = 150;
   TL0 = 150;
 
+  TH1 = 150;
+  TL1 = 150;
+
   // Set Timer0 on
   TR0 = 1;
- 
+  TR1 = 1;
+  
   // Set Timer0 interrupt on
   ET0 = 1;
+  ET1 = 1;
+  
+  // Enable receiver
+  CE_HIGH();
   
   counter_red = counter_green = counter_blue = 0;
   period_red = period_green = period_blue = 0;
   
   for(;;) 
-  {
-    //sprintf(msg, "count %u\r\n", counter_t0);
-    //putstring(msg);
+  {    
+    if(received) {
+      received = false;
+      sprintf(msg, "%lu\r\n", counter);
+      putstring(msg);
+      delay_ms(10);
+    }
+    
     switch(mode) {
+      case eNone:
       default:
-      case eOn:
+        TR0 = 0;
+        TR1 = 0;
+        break;
+      
+      case eColor:
       {
-        color = LED_BLUE | LED_RED | LED_GREEN;
+        TR0 = 1;
+        TR1 = 0;
+        
+        //color = LED_BLUE | LED_RED | LED_GREEN;
         TH0 = 150;
         TL0 = 150;
-        period_red = 50;
-        period_green = 50;
-        period_blue = 20;
+        //period_red = 50;
+        //period_green = 50;
+        //period_blue = 20;
         delay_ms(100);
       }
       break;
       
       case eBlink:
       {
-        color = LED_BLUE | LED_RED | LED_GREEN;
-        period_red = period_green = period_blue = 0xff;
-        TR0 = 0; // timer off
-        P1 = 0;  // light off
-        delay_ms(1000);
-        TR0 = 1; // timer on
-        delay_ms(50);
+        TR0 = 0;
+        TR1 = 1;
+        delay_ms(100);
       }
       break;
       
       case eColorChange:
       {
-        color = LED_BLUE | LED_RED | LED_GREEN;
+        //color = LED_BLUE | LED_RED | LED_GREEN;
         
         if(period_red == 0) inc = 1;
         else if(period_red == 0xff) inc = -1;      
@@ -242,22 +267,29 @@ void main()
     }
   }
   
-  // Enable receiver
-//  CE_HIGH();
+
 
 //  for(;;){
-//    if(received) {
-//      received = false;
-//      sprintf(msg, "%lu\r\n", counter);
-//      putstring(msg);
-//      //delay_ms(10);
-//    }
+
 //  }
 }
 
+uint32_t counter_t1 = 0;
 
-
-
+T1_ISR()
+{
+  if(counter_t1 == 0) {
+    P1 = color; 
+  }  
+  if(counter_t1 == (period_red * 10)) {
+    P1 = 0;
+  }
+  if(counter_t1 == ((period_red * 10) + 5000)) {
+    counter_t1 = 0;
+    return;
+  }
+  counter_t1++;
+}
 
 T0_ISR()
 {
@@ -295,7 +327,12 @@ NRF_ISR()
 
     // Write received payload[0] to port 0
     //P0 = payload[0];
-    memcpy(&counter, payload, sizeof(counter));
+    mode    = payload[0];
+    color   = payload[1];
+    period_red = payload[2];
+    period_green = payload[3];
+    period_blue = payload[4];
+    
     received = true;
   }
 }

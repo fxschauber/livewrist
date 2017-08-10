@@ -57,6 +57,21 @@
 #include "hal_uart.h"
 #include "hal_delay.h"
 
+// [mode][color][dim_red][dim_green][dim_blue]
+uint8_t frame[64];
+uint8_t index = 0;
+
+#define  LED_BLUE   0x04
+#define  LED_GREEN  0x08
+#define  LED_RED    0x10
+
+typedef enum {
+  eNone,
+  eColor,
+  eBlink,
+  eColorChange
+} eMode;
+
 // Global variables
 static bool volatile radio_busy;
 
@@ -91,7 +106,7 @@ void putstring(char *s)
 
 void main(void)
 {
-  uint8_t payload[4];
+  uint8_t payload[5];
 	uint32_t counter = 0;
 	char msg[32];
 
@@ -109,7 +124,9 @@ void main(void)
   RFCTL = 0x10U;
   #endif
 
-	P0DIR = 0;
+  // P0.4 : UART_RX
+  // P0.3 : UART_TX
+	P0DIR = 0x10; 
 	
   // Enable the radio clock
   RFCKEN = 1U;
@@ -125,14 +142,26 @@ void main(void)
 
   for(;;)
   {
-    // Put P0 contents in payload[0]
-    //payload[0] = ~P0;
-		counter++;
-		memcpy(payload, &counter, 4);
-		
+    // If any characters received
+    if( hal_uart_chars_available() )
+    {
+			//P3 = 0x11;
+      // Echo received characters
+      //frame[index++] = 
+      
+      //putchar(getchar());
+    }
+    
+    
+    
+    payload[0] = eColor;
+    payload[1] = LED_RED | LED_GREEN | LED_BLUE;
+    payload[2] = 100;
+    payload[3] = 100;
+    payload[4] = 100;
 
     // Write payload to radio TX FIFO
-    hal_nrf_write_tx_payload_noack(payload, 4U);
+    hal_nrf_write_tx_payload_noack(payload, 5U);
 
     // Toggle radio CE signal to start transmission
     CE_PULSE();
@@ -142,9 +171,15 @@ void main(void)
     while (radio_busy)
     {
     }
-		sprintf(msg, "sent %lu\r\n", counter);
+		sprintf(msg, "sent %bx %bx %bx %bx %bx\r\n", 
+            payload[0],
+            payload[1],
+            payload[2],
+            payload[3],
+            payload[4]
+    );
 		putstring(msg);
-		delay_ms(100);
+		delay_ms(1000);
   }
 }
 
